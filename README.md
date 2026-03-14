@@ -5,5 +5,3 @@ TaskFlow est une application web complète de gestion de tâches qui permet aux 
 
 Leslie — Architecture + Documentation + Frontend et Sandra — Backend + Base de données + Authentification
 
-## Meryl 
-j'ai fait des modifs
