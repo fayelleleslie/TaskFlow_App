@@ -19,7 +19,7 @@ exports.register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         // 3. Création de l'utilisateur avec le mot de passe haaché et sauvegarder
-        user = new User({ username, email, password: hashedPassword });
+        const user = new User({ username, email, password: hashedPassword });
         //On Sauvegarde le hash dans MongoDB, jamais le mot de passe clair
         await user.save();
 
@@ -29,9 +29,6 @@ exports.register = async (req, res) => {
         res.status(500).json({ message: "Erreur server lors de l'inscription. veuillez réessayer." });
     }
 };
-
-//Fonction Login
-const jwt = require('jsonwebtoken');
 
 exports.login = async (req, res) => {
     try {
@@ -75,4 +72,8 @@ exports.login = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Erreur lors de la connexion." });
     }
+};
+
+exports.logout = async (req, res) => {
+    res.status(200).json({ message: "Déconnexion réussie" });
 };
