@@ -25,17 +25,39 @@ const authService = {
     return response.data;
   },
 
+  demoLogin: () => {
+    const demoUser = {
+      id: 'demo-user',
+      username: 'Demo',
+      email: 'demo@taskflow.local'
+    };
+
+    localStorage.setItem('token', 'demo-token');
+    localStorage.setItem('taskflow_user', JSON.stringify(demoUser));
+
+    return {
+      message: 'Mode demo active',
+      token: 'demo-token',
+      user: demoUser
+    };
+  },
+
   // Déconnexion
   logout: () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('taskflow_user');
   },
 
   // Vérifier si l'utilisateur est connecté
   isAuthenticated: () => {
     return !!localStorage.getItem('token');
+  },
+
+  getCurrentUser: () => {
+    const user = localStorage.getItem('taskflow_user');
+    return user ? JSON.parse(user) : null;
   }
 
 };
 
 export default authService;
-

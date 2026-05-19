@@ -1,10 +1,9 @@
-import { createContext, useState, useContext } from 'react';
+import { useState } from 'react';
 import authService from '../authService';
-
-const AuthContext = createContext();
+import AuthContext from './authContext';
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(authService.getCurrentUser());
   const [isAuth, setIsAuth] = useState(authService.isAuthenticated());
 
   const register = async (username, email, password) => {
@@ -14,6 +13,14 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const data = await authService.login(email, password);
+    localStorage.setItem('taskflow_user', JSON.stringify(data.user));
+    setUser(data.user);
+    setIsAuth(true);
+    return data;
+  };
+
+  const demoLogin = () => {
+    const data = authService.demoLogin();
     setUser(data.user);
     setIsAuth(true);
     return data;
@@ -26,12 +33,8 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuth, register, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuth, register, login, demoLogin, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 }

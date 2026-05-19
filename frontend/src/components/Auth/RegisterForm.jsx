@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../services/context/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function RegisterForm() {
   const { register } = useAuth();
@@ -44,31 +44,52 @@ export default function RegisterForm() {
       await register(formData.username, formData.email, formData.password);
       navigate('/login');
     } catch (error) {
-      setServerError('Erreur lors de la création du compte');
+      setServerError(error.response?.data?.message || 'Erreur lors de la creation du compte');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="username" placeholder="Nom d'utilisateur" onChange={handleChange} />
-      {errors.username && <p>{errors.username}</p>}
+    <form className="form" onSubmit={handleSubmit}>
+      <label>
+        Nom d'utilisateur
+        <input name="username" value={formData.username} onChange={handleChange} />
+      </label>
+      {errors.username && <p className="error">{errors.username}</p>}
 
-      <input name="email" type="email" placeholder="Email" onChange={handleChange} />
-      {errors.email && <p>{errors.email}</p>}
+      <label>
+        Email
+        <input name="email" type="email" value={formData.email} onChange={handleChange} />
+      </label>
+      {errors.email && <p className="error">{errors.email}</p>}
 
-      <input name="password" type="password" placeholder="Mot de passe" onChange={handleChange} />
-      {errors.password && <p>{errors.password}</p>}
+      <label>
+        Mot de passe
+        <input name="password" type="password" value={formData.password} onChange={handleChange} />
+      </label>
+      {errors.password && <p className="error">{errors.password}</p>}
 
-      <input name="confirmPassword" type="password" placeholder="Confirmer le mot de passe" onChange={handleChange} />
-      {errors.confirmPassword && <p>{errors.confirmPassword}</p>}
+      <label>
+        Confirmer le mot de passe
+        <input
+          name="confirmPassword"
+          type="password"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+        />
+      </label>
+      {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
       
-      {serverError && <p style={{ color: 'red' }}>{serverError}</p>}
+      {serverError && <p className="error">{serverError}</p>}
 
       <button type="submit" disabled={loading}>
-        {loading ? 'Création du compte...' : 'Créer mon compte'}
+        {loading ? 'Creation du compte...' : 'Creer mon compte'}
       </button>
+
+      <p className="muted">
+        Deja un compte ? <Link to="/login">Se connecter</Link>
+      </p>
     </form>
   );
 }
