@@ -4,7 +4,7 @@ export default function Sidebar({ stats }) {
       <div className="brand-block">
         <span className="brand-mark">TF</span>
         <div>
-          <strong>TaskFlow</strong>
+          <strong>SL TASK</strong>
           <p>Gestion de taches</p>
         </div>
       </div>
