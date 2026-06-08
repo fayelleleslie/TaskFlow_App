@@ -5,11 +5,11 @@ TaskFlow est une application web complète de gestion de tâches qui permet aux 
 # Stack Technique Final
 
 - Frontend :
- *React.js
- *Tailwindcss
- *Axios
- *Toastify
- *React Router
+  -React.js
+  -Tailwindcss
+  -Axios
+  -Toastify
+  -React Router
 
 - Backend : 
  * Environnement : Node.js,
