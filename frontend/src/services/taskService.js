@@ -52,13 +52,39 @@ const saveDemoTasks = (tasks) => {
   localStorage.setItem(DEMO_TASKS_KEY, JSON.stringify(tasks));
 };
 
+const filterAndPaginateDemoTasks = (tasks, params = {}) => {
+  const page = Math.max(Number(params.page) || 1, 1);
+  const limit = Math.max(Number(params.limit) || 20, 1);
+  const search = params.search?.trim().toLowerCase();
+
+  const filteredTasks = tasks.filter((task) => {
+    const matchesStatus = !params.status || params.status === 'all' || task.status === params.status;
+    const text = `${task.title} ${task.description || ''}`.toLowerCase();
+    const matchesSearch = !search || text.includes(search);
+    return matchesStatus && matchesSearch;
+  });
+
+  const start = (page - 1) * limit;
+  const paginatedTasks = filteredTasks.slice(start, start + limit);
+
+  return {
+    tasks: paginatedTasks,
+    pagination: {
+      page,
+      limit,
+      total: filteredTasks.length,
+      totalPages: Math.ceil(filteredTasks.length / limit)
+    }
+  };
+};
+
 const taskService = {
-  getTasks: async () => {
+  getTasks: async (params = {}) => {
     if (isDemoMode()) {
-      return getDemoTasks();
+      return filterAndPaginateDemoTasks(getDemoTasks(), params);
     }
 
-    const response = await api.get('/tasks');
+    const response = await api.get('/tasks', { params });
     return response.data;
   },
 

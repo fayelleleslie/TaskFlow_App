@@ -329,6 +329,18 @@
   padding: 0;
 }
 
+.pagination {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.pagination span {
+  color: #475569;
+  font-weight: 800;
+}
+
 .task-item {
   align-items: flex-start;
   background: #fbfcfe;

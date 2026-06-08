@@ -19,8 +19,11 @@ const authService = {
       password
     });
     // On sauvegarde le token reçu du backend
-    if (response.data.token) {
-      localStorage.setItem('token', response.data.token);
+    if (response.data.accessToken) {
+      localStorage.setItem('token', response.data.accessToken);
+    }
+    if (response.data.user) {
+      localStorage.setItem('taskflow_user', JSON.stringify(response.data.user));
     }
     return response.data;
   },
@@ -44,6 +47,12 @@ const authService = {
 
   // Déconnexion
   logout: () => {
+    // appeler le backend pour révoquer le refresh token cookie
+    try {
+      api.post('/auth/logout').catch(() => {});
+    } catch (e) {
+      // ignore
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('taskflow_user');
   },

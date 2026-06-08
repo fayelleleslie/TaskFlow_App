@@ -22,6 +22,7 @@ export default function Dashboard() {
   const { isAuth, logout, user } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [filters, setFilters] = useState({ search: '', status: 'all' });
+  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedTask, setSelectedTask] = useState(null);
@@ -32,8 +33,14 @@ export default function Dashboard() {
     try {
       setLoading(true);
       setError('');
-      const data = await taskService.getTasks();
-      setTasks(data);
+      const data = await taskService.getTasks({
+        ...filters,
+        page: pagination.page,
+        limit: pagination.limit
+      });
+
+      setTasks(data.tasks);
+      setPagination(data.pagination);
     } catch {
       setError("Impossible de charger les taches. Verifie que le backend et MongoDB sont lances.");
     } finally {
@@ -43,7 +50,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (isAuth) loadTasks();
-  }, [isAuth]);
+  }, [filters, isAuth, pagination.page, pagination.limit]);
 
   const stats = useMemo(() => {
     const total = tasks.length;
@@ -74,22 +81,19 @@ export default function Dashboard() {
       .sort((a, b) => new Date(a.reminderAt || a.dueDate) - new Date(b.reminderAt || b.dueDate));
   }, [tasks]);
 
-  const filteredTasks = useMemo(() => {
-    return tasks.filter((task) => {
-      const matchesStatus = filters.status === 'all' || task.status === filters.status;
-      const text = `${task.title} ${task.description || ''}`.toLowerCase();
-      const matchesSearch = text.includes(filters.search.toLowerCase().trim());
-      return matchesStatus && matchesSearch;
-    });
-  }, [filters, tasks]);
-
   if (!isAuth) {
     return <Navigate to="/login" replace />;
   }
 
+  const handleFilterChange = (nextFilters) => {
+    setFilters(nextFilters);
+    setPagination((current) => ({ ...current, page: 1 }));
+  };
+
   const handleCreate = async (task) => {
     const createdTask = await taskService.createTask(task);
     setTasks([createdTask, ...tasks]);
+    setPagination((current) => ({ ...current, total: current.total + 1 }));
   };
 
   const handleUpdate = async (task) => {
@@ -107,7 +111,19 @@ export default function Dashboard() {
   const handleConfirmDelete = async () => {
     await taskService.deleteTask(taskToDelete._id);
     setTasks(tasks.filter((task) => task._id !== taskToDelete._id));
+    setPagination((current) => ({ ...current, total: Math.max(current.total - 1, 0) }));
     setTaskToDelete(null);
+  };
+
+  const goToPreviousPage = () => {
+    setPagination((current) => ({ ...current, page: Math.max(current.page - 1, 1) }));
+  };
+
+  const goToNextPage = () => {
+    setPagination((current) => ({
+      ...current,
+      page: Math.min(current.page + 1, current.totalPages || 1)
+    }));
   };
 
   return (
@@ -138,7 +154,7 @@ export default function Dashboard() {
           </article>
         </section>
 
-        <TaskFilters filters={filters} onChange={setFilters} />
+        <TaskFilters filters={filters} onChange={handleFilterChange} />
 
         <section className="task-layout" id="tasks">
           <div className="side-stack" id="new-task">
@@ -146,7 +162,7 @@ export default function Dashboard() {
             <ReminderPanel reminders={reminders} onOpen={setSelectedTask} />
           </div>
           <TaskList
-            tasks={filteredTasks}
+            tasks={tasks}
             loading={loading}
             onDelete={setTaskToDelete}
             onEdit={setEditingTask}
@@ -154,6 +170,25 @@ export default function Dashboard() {
             onToggle={handleToggle}
           />
         </section>
+
+        {pagination.totalPages > 1 && (
+          <nav className="pagination" aria-label="Pagination des taches">
+            <button type="button" className="secondary" onClick={goToPreviousPage} disabled={pagination.page <= 1}>
+              Precedent
+            </button>
+            <span>
+              Page {pagination.page} / {pagination.totalPages}
+            </span>
+            <button
+              type="button"
+              className="secondary"
+              onClick={goToNextPage}
+              disabled={pagination.page >= pagination.totalPages}
+            >
+              Suivant
+            </button>
+          </nav>
+        )}
       </main>
 
       {selectedTask && (
