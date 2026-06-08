@@ -67,8 +67,9 @@ Le backend suit une structure modulaire pour une meilleure maintenabilité :
 3. Configuration des variables d'environnement : 
    Créer un fichier .env à la racine du dossier backend :
    - PORT=3000
-   - MONGO_URI=votre_lien_mongodb
-   - JWT_SECRET=votre_secret_ultra_securise
+   - MONGO_URI=votre_lien_mongodb ( obligatoire )
+   - JWT_SECRET=votre_secret_ultra_securise ( obligatoire )
+    
 
 4. Installer les package.json : 
    - npm init
@@ -76,6 +77,20 @@ Le backend suit une structure modulaire pour une meilleure maintenabilité :
 
 5. Lancement de l'application :
    -  npm run dev
+  
+## Déploiement / production
+- Assurez-vous que MONGO_URI et JWT_SECRET sont définis.
+- Fournissez REDIS_URL en production pour la queue de rappel.
+- Servez le frontend via HTTPS et configurez le backend derrière un reverse proxy (ex: Nginx) avec TLS.
+- Restreignez FRONTEND_URL en CORS pour le domaine de production.
+- Configurez un job de nettoyage TTL pour les tokens blacklistés et les refresh tokens révoqués si nécessaire.
+
+## Tests et vérifications rapides (smoke)
+1. Créer un utilisateur (POST /api/auth/register).
+2. Se connecter (POST /api/auth/login) — vérifiez que Set-Cookie: refreshToken est présent.
+3. Accéder à une route protégée avec Authorization: Bearer <accessToken>.
+4. Forcer POST /api/auth/refresh en envoyant le cookie pour obtenir un nouvel access token.
+5. Logout (POST /api/auth/logout) — vérifiez que l'accès est ensuite refusé pour l'ancien access token.
 
 
 # Répartition des roles:
