@@ -4,7 +4,12 @@ TaskFlow est une application web complète de gestion de tâches qui permet aux 
 
 # Stack Technique Final
 
-- Frontend : React.js
+- Frontend :
+ *React.js
+ *Tailwindcss
+ *Axios
+ *Toastify
+ *React Router
 
 - Backend : 
  * Environnement : Node.js,
@@ -46,11 +51,11 @@ Le backend suit une structure modulaire pour une meilleure maintenabilité :
 
 # Installation et Lancement
 
-## Pré-requis
+## Installation du Backend
+
+### Pré-requis
 - Node.js installé
 - MongoDB local
-
-## Installation du Backend
 
 1. Cloner le projet sur son terminal:
    - bash
